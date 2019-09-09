@@ -54,28 +54,42 @@ namespace EntranceSensorForm
 
         private void Init()
         {
-            serialTransport = new SerialTransport();
-            serialTransport.serial.DataReceived += (sender, e) =>
+            try
             {
-                
-                SerialPort port = (SerialPort)sender;
-                string data = port.ReadExisting();
-
-                if(data.Equals("1") && !stopwatch.IsRunning)
+                serialTransport = new SerialTransport();
+                serialTransport.serial.DataReceived += (sender, e) =>
                 {
-                    isSensorActive = true;
-                    nextVideoLabel.Text = "O";
-                    Log(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ":센서에 동작이 감지됨");
-                    stopwatch.Start();
-                }
-            };
+
+                    SerialPort port = (SerialPort)sender;
+                    string data = port.ReadExisting();
+
+                    if (data.Equals("1") && !stopwatch.IsRunning)
+                    {
+                        isSensorActive = true;
+                        nextVideoLabel.Text = "O";
+                        Log(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ":센서에 동작이 감지됨");
+                        stopwatch.Start();
+                    }
+                };
+            }
+            catch(Exception e)
+            {
+                Log(e.Message);
+            }
 
             //팟플레이어 찾기
             hWnd = FindWindow("PotPlayer", null);
             if(hWnd == 0)
             {
-                //Todo : 경고창을 띄운 뒤 설치마법사의 다시시도처럼 켜질때까지 경고창이 띄워지게 설정하기
-                Log("TEst-팟플레이어 안켜짐");
+                while (hWnd == 0)
+                {
+                    var result = MessageBox.Show("팟플레이어를 킨 후 확인버튼을 누르세요", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (result == DialogResult.OK)
+                    {
+                        hWnd = FindWindow("PotPlayer", null);
+                    }
+                    //Todo : 경고창을 띄운 뒤 설치마법사의 다시시도처럼 켜질때까지 경고창이 띄워지게 설정하기
+                }
             }
 
             thread = new Thread(new ThreadStart(VideoThread));
@@ -110,7 +124,6 @@ namespace EntranceSensorForm
                     stopwatch.Reset();
                 }
             }
-            Log("쓰레드Off");
         }
 
         private void OptionComboBox_SelectedIndexChanged(object sender, EventArgs e)
