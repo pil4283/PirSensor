@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.LogLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.optionComboBox = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -39,21 +38,11 @@
             this.logTextBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // LogLabel
-            // 
-            this.LogLabel.BackColor = System.Drawing.SystemColors.Control;
-            this.LogLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.LogLabel.Enabled = false;
-            this.LogLabel.Location = new System.Drawing.Point(202, 36);
-            this.LogLabel.Name = "LogLabel";
-            this.LogLabel.Size = new System.Drawing.Size(260, 405);
-            this.LogLabel.TabIndex = 0;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("굴림", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label1.Location = new System.Drawing.Point(314, 9);
+            this.label1.Location = new System.Drawing.Point(344, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(36, 16);
             this.label1.TabIndex = 1;
@@ -117,7 +106,8 @@
             // 
             // logTextBox
             // 
-            this.logTextBox.Location = new System.Drawing.Point(202, 36);
+            this.logTextBox.AcceptsReturn = true;
+            this.logTextBox.Location = new System.Drawing.Point(225, 33);
             this.logTextBox.Multiline = true;
             this.logTextBox.Name = "logTextBox";
             this.logTextBox.ReadOnly = true;
@@ -130,7 +120,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(474, 450);
+            this.ClientSize = new System.Drawing.Size(497, 450);
             this.Controls.Add(this.logTextBox);
             this.Controls.Add(this.nextVideoLabel);
             this.Controls.Add(this.videoStatLabel);
@@ -139,7 +129,6 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.optionComboBox);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.LogLabel);
             this.Name = "Form1";
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -149,8 +138,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label LogLabel;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox optionComboBox;
         private System.Windows.Forms.Label label2;

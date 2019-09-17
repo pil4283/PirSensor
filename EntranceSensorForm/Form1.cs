@@ -18,6 +18,7 @@ namespace EntranceSensorForm
     {
         SerialTransport serialTransport;
         StringBuilder sb = new StringBuilder();
+
         int[] times = { 3, 5, 10, 30, 60, 180, 300};
         int reInitTime = 3;
         bool isSensorActive = false;
@@ -44,7 +45,18 @@ namespace EntranceSensorForm
             optionComboBox.Items.AddRange(new object[] {"3초","5초","10초","30초","60초", "180초", "300초"});
             optionComboBox.SelectedIndex = 0;
 
-            Init();
+            //Init();
+            thread = new Thread(new ThreadStart(ASDF));
+            thread.Start();
+        }
+
+        void ASDF()
+        {
+            while(true)
+            {
+                Log("LogTest");
+                Thread.Sleep(200);
+            }
         }
 
         ~Form1()
@@ -83,15 +95,13 @@ namespace EntranceSensorForm
             {
                 while (hWnd == 0)
                 {
-                    var result = MessageBox.Show("팟플레이어를 킨 후 확인버튼을 누르세요", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var result = MessageBox.Show("팟플레이어가 꺼져있습니다.\n팟플레이어를 킨 후 확인버튼을 누르세요", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     if (result == DialogResult.OK)
                     {
                         hWnd = FindWindow("PotPlayer", null);
                     }
-                    //Todo : 경고창을 띄운 뒤 설치마법사의 다시시도처럼 켜질때까지 경고창이 띄워지게 설정하기
                 }
             }
-
             thread = new Thread(new ThreadStart(VideoThread));
             thread.Start();
         }
@@ -136,6 +146,8 @@ namespace EntranceSensorForm
         {
             sb.AppendLine(logText);
             logTextBox.Text = sb.ToString();
+            logTextBox.Select(logTextBox.Text.Length, 0);
+            logTextBox.ScrollToCaret();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
