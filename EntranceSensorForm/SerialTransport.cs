@@ -11,27 +11,20 @@ namespace EntranceSensorForm
     public class SerialTransport : IDisposable
     {
         public SerialPort serial = new SerialPort();
-        int baudRate = 9600;
-        string portName = "COM3";
+        //int baudRate = 9600;
+        //string portName = "COM3";
 
-        public SerialTransport()
+        public SerialTransport(int baudRate, string portName)
         {
-            try
-            {
-                serial.BaudRate = baudRate;
-                serial.PortName = portName;
-                serial.Open();
-            }
-            catch(Exception e)
-            {
-                
-            }
+            serial.BaudRate = baudRate;
+            serial.PortName = portName;
+            serial.Open();
         }
-
         ~SerialTransport()
         {
             Dispose();
         }
+
         public void Dispose()
         {
             serial.Dispose();

@@ -51,7 +51,7 @@
             // optionComboBox
             // 
             this.optionComboBox.FormattingEnabled = true;
-            this.optionComboBox.Location = new System.Drawing.Point(26, 127);
+            this.optionComboBox.Location = new System.Drawing.Point(15, 88);
             this.optionComboBox.Name = "optionComboBox";
             this.optionComboBox.Size = new System.Drawing.Size(143, 20);
             this.optionComboBox.TabIndex = 2;
@@ -60,9 +60,10 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(24, 100);
+            this.label2.Font = new System.Drawing.Font("굴림", 11F);
+            this.label2.Location = new System.Drawing.Point(12, 55);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(161, 24);
+            this.label2.Size = new System.Drawing.Size(202, 30);
             this.label2.TabIndex = 3;
             this.label2.Text = "인식하고 난 뒤 \r\n동영상 재생까지 걸리는 시간";
             // 
@@ -70,7 +71,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("굴림", 11F);
-            this.label3.Location = new System.Drawing.Point(12, 202);
+            this.label3.Location = new System.Drawing.Point(12, 151);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(127, 15);
             this.label3.TabIndex = 4;
@@ -80,7 +81,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("굴림", 11F);
-            this.label4.Location = new System.Drawing.Point(13, 235);
+            this.label4.Location = new System.Drawing.Point(12, 199);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(167, 15);
             this.label4.TabIndex = 5;

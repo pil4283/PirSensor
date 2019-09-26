@@ -16,6 +16,8 @@ namespace EntranceSensorForm
 {
     public partial class Form1 : Form
     {
+        int baudRate = 9600;
+        string portName = "COM7";
         SerialTransport serialTransport;
         StringBuilder sb = new StringBuilder();
 
@@ -38,6 +40,9 @@ namespace EntranceSensorForm
         /// </summary>
         [DllImport("user32")]
         public static extern int SendMessage(int HWND, uint u, uint wParam, long lParam);
+
+        [DllImport("user32")]
+        public static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, string lpReturnedString, uint size, string lpFileName);
         
         public Form1()
         {
@@ -45,18 +50,8 @@ namespace EntranceSensorForm
             optionComboBox.Items.AddRange(new object[] {"3초","5초","10초","30초","60초", "180초", "300초"});
             optionComboBox.SelectedIndex = 0;
 
-            //Init();
-            thread = new Thread(new ThreadStart(ASDF));
-            thread.Start();
-        }
-
-        void ASDF()
-        {
-            while(true)
-            {
-                Log("LogTest");
-                Thread.Sleep(200);
-            }
+            GetConfig();
+            Init();
         }
 
         ~Form1()
@@ -64,14 +59,19 @@ namespace EntranceSensorForm
 
         }
 
+        void GetConfig()
+        {
+            GetPrivateProfileString("setting", "portname", "COM3", "", 1, "config.ini");
+
+        }
+
         private void Init()
         {
             try
             {
-                serialTransport = new SerialTransport();
+                serialTransport = new SerialTransport(baudRate, portName);
                 serialTransport.serial.DataReceived += (sender, e) =>
                 {
-
                     SerialPort port = (SerialPort)sender;
                     string data = port.ReadExisting();
 
@@ -87,6 +87,7 @@ namespace EntranceSensorForm
             catch(Exception e)
             {
                 Log(e.Message);
+                Log("센서와 연결 중 오류가 감지됨\nconfig.ini파일을 확인");
             }
 
             //팟플레이어 찾기
@@ -142,6 +143,11 @@ namespace EntranceSensorForm
             reInitTime = times[comboBox.SelectedIndex];
         }
 
+        /// <summary>
+        /// Form의 로그탭에서 로그출력
+        /// Todo : 파일로 저장하기?
+        /// </summary>
+        /// <param name="logText"></param>
         public void Log(string logText)
         {
             sb.AppendLine(logText);
