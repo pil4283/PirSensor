@@ -11,12 +11,27 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OscJack;
 
 namespace EntranceSensorForm
 {
     public partial class Form1 : Form
     {
-        int baudRate = 9600;
+        #region OSC
+
+        OscClient oscClient;
+        _PropertyInfo propertyInfo;
+
+        string[] ipAddress;
+        int slaveCnt;
+        int udpPort;
+        string oscAddress;
+
+		#endregion
+
+		#region Variable
+
+		int baudRate = 9600;
         string portName = "COM7";
         SerialTransport serialTransport;
         StringBuilder sb = new StringBuilder();
@@ -29,11 +44,15 @@ namespace EntranceSensorForm
         bool exitFlag = false;
         Stopwatch stopwatch = new Stopwatch();
 
-        /// <summary>
-        /// 특정 윈도우 찾기
-        /// </summary>
-        /// <returns>PID or 0(없으면)</returns>
-        [DllImport("user32")]
+		#endregion
+
+		#region WIN32API
+
+		/// <summary>
+		/// 특정 윈도우 찾기
+		/// </summary>
+		/// <returns>PID or 0(없으면)</returns>
+		[DllImport("user32")]
         public static extern int FindWindow(string processName, string titleName);
         /// <summary>
         /// 특정 윈도우에 메세지 보내기
@@ -43,9 +62,14 @@ namespace EntranceSensorForm
 
         [DllImport("user32")]
         public static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, string lpReturnedString, uint size, string lpFileName);
-        
-        public Form1()
+
+		#endregion
+
+		public Form1()
         {
+            // Todo : 사용자의 입력을 받을 필요가 없으므로 콤보박스 삭제, 시작하자마자 숨기기 OR 콘솔응용프로그램으로 새로 만들기
+            // 콘솔응용프로그램에 윈도우창 Hide기능이 있는가?
+
             InitializeComponent();
             optionComboBox.Items.AddRange(new object[] {"3초","5초","10초","30초","60초", "180초", "300초"});
             optionComboBox.SelectedIndex = 0;
@@ -62,9 +86,11 @@ namespace EntranceSensorForm
         void GetConfig()
         {
             GetPrivateProfileString("setting", "portname", "COM3", "", 1, "config.ini");
-
         }
 
+        /// <summary>
+        /// 센서와 팟플레이어 초기화
+        /// </summary>
         private void Init()
         {
             try
@@ -90,7 +116,11 @@ namespace EntranceSensorForm
                 Log("센서와 연결 중 오류가 감지됨\nconfig.ini파일을 확인");
             }
 
-            //팟플레이어 찾기
+            //OSC초기화
+            ipAddress = new string[slaveCnt];
+
+            // Todo : 팟플레이어가 아닌 MadMapper로 변경, 찾는 윈도우를 MadMapper로, 메세지박스는 삭제하고 1초마다 확인하게 바꾸기
+            // 팟플레이어 찾기
             hWnd = FindWindow("PotPlayer", null);
             if(hWnd == 0)
             {
@@ -107,6 +137,18 @@ namespace EntranceSensorForm
             thread.Start();
         }
 
+        /// <summary>
+        /// SlavePC에 OSC메세지를 보냄, 메세지를 받은 PC는 해당 커맨드에 맞는 행동을 취함
+        /// (MadMapper에서 미리 정의한 작업 실행)
+        /// </summary>
+        public void SendOSCCommand()
+        {
+            // Todo : IP랑 포트, 커맨드등은 Config(ex)파일을 읽은 뒤 받아옴
+        }
+
+        /// <summary>
+        /// 팟플레이어 사용안함, 보관용
+        /// </summary>
         public  void VideoThread()
         {
             //종료전까지 쭉

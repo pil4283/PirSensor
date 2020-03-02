@@ -51,6 +51,9 @@
     <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -71,6 +74,14 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="OSC\Internal\OscDataTypes.cs" />
+    <Compile Include="OSC\Internal\OscPacketEncoder.cs" />
+    <Compile Include="OSC\Internal\OscPacketParser.cs" />
+    <Compile Include="OSC\OscClient.cs" />
+    <Compile Include="OSC\OscDataHandle.cs" />
+    <Compile Include="OSC\OscMaster.cs" />
+    <Compile Include="OSC\OscMessageDispatcher.cs" />
+    <Compile Include="OSC\OscServer.cs" />
     <Compile Include="PotPlayerCmd.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,6 +98,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
