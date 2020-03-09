@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using OscJack;
+using System.IO;
 
 namespace EntranceSensorForm
 {
@@ -19,12 +19,10 @@ namespace EntranceSensorForm
     {
         #region OSC
 
-        OscClient oscClient;
-        _PropertyInfo propertyInfo;
+        OscSender[] oscSender;
 
         string[] ipAddress;
-        int slaveCnt;
-        int udpPort;
+        int oscPort;
         string oscAddress;
 
 		#endregion
@@ -74,7 +72,7 @@ namespace EntranceSensorForm
             optionComboBox.Items.AddRange(new object[] {"3초","5초","10초","30초","60초", "180초", "300초"});
             optionComboBox.SelectedIndex = 0;
 
-            GetConfig();
+          //  GetConfig();
             Init();
         }
 
@@ -83,9 +81,34 @@ namespace EntranceSensorForm
 
         }
 
+        /// <summary>
+        /// if Config.ini is not exist, create Default ConfigFile
+        /// </summary>
+        void CreateDefaultConfig(string dir)
+        {
+            var ini = new IniFile();
+            ini["IPSetting"]["PCCount"] = 3;
+            ini["IPSetting"]["PC_0_IP"] = "192.168.0.1";
+            ini["IPSetting"]["PC_1_IP"] = "192.168.0.2";
+            ini["IPSetting"]["PC_2_IP"] = "192.168.0.3";
+            ini["IPSetting"]["Port"] = 9000;
+
+            ini["OSCSetting"]["OSCAddress"] = "/Sensor";
+            ini.Save(dir);
+
+            Log(ini["IPSetting"]["Port"].ToString());
+            var result = MessageBox.Show("Config.ini파일 생성완료\nC:/Davvero/Config.ini파일을 시스템 사양에 맞게 수정한 뒤 다시 실행하세요", "초기화 완료", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if(result == DialogResult.OK)
+            {
+                Application.Exit();
+                Close();
+                Log("이 메세지가 보이면 정상적으로 종료 안됨");
+            }
+        }
+
         void GetConfig()
         {
-            GetPrivateProfileString("setting", "portname", "COM3", "", 1, "config.ini");
+            
         }
 
         /// <summary>
@@ -93,32 +116,67 @@ namespace EntranceSensorForm
         /// </summary>
         private void Init()
         {
-            try
+            string dir = "C:\\Davvero\\Config.ini";
+            // OSC초기화
+            if (!File.Exists(dir))
             {
-                serialTransport = new SerialTransport(baudRate, portName);
-                serialTransport.serial.DataReceived += (sender, e) =>
-                {
-                    SerialPort port = (SerialPort)sender;
-                    string data = port.ReadExisting();
-
-                    if (data.Equals("1") && !stopwatch.IsRunning)
-                    {
-                        isSensorActive = true;
-                        nextVideoLabel.Text = "O";
-                        Log(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ":센서에 동작이 감지됨");
-                        stopwatch.Start();
-                    }
-                };
-            }
-            catch(Exception e)
-            {
-                Log(e.Message);
-                Log("센서와 연결 중 오류가 감지됨\nconfig.ini파일을 확인");
+                CreateDefaultConfig(dir);
+                return;
             }
 
-            //OSC초기화
+            var ini = new IniFile();
+            
+            ini.Load(dir);
+            int slaveCnt = ini["IPSetting"]["PCCount"].ToInt();
+            oscPort = ini["IPSetting"]["Port"].ToInt();
+            oscAddress = ini["OSCSetting"]["OSCAddress"].ToString();
+            //PC수 만큼 배열 지정
             ipAddress = new string[slaveCnt];
+            oscSender = new OscSender[slaveCnt];
 
+            for (int i = 0; i < slaveCnt; i++)
+            {
+                string pcName = string.Format("PC_{0}_IP", i);
+                ipAddress[i] = ini["IPSetting"][pcName].ToString();
+                oscSender[i] = new OscSender(ipAddress[i], oscPort, oscAddress);
+
+                Log(ipAddress[i]);
+            }
+
+            StreamWriter log = new StreamWriter("C:\\Davvero\\Log.txt");
+
+            // PIR센서 초기화
+            while (serialTransport == null)
+            {
+                try
+                {
+                    log.WriteLine("wait");
+                    serialTransport = new SerialTransport(baudRate, portName);
+                    Thread.Sleep(10000);
+                    serialTransport.serial.DataReceived += (sender, e) =>
+                    {
+                        SerialPort port = (SerialPort)sender;
+                        string data = port.ReadExisting();
+
+                        // 움직임 감지 = 1, 비감지 0
+                        if (data.Equals("1") && !stopwatch.IsRunning)
+                        {
+                            isSensorActive = true;
+                            nextVideoLabel.Text = "O";
+                            Log(DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ":센서에 동작이 감지됨");
+                            stopwatch.Start();
+                        }
+                    };
+                }
+                catch (Exception e)
+                {
+                    Log(e.Message);
+                    Log("센서와 연결 중 오류가 감지됨\nconfig.ini파일을 확인");
+                    log.WriteLine(e.Message);
+                }
+            }
+            
+            /*
             // Todo : 팟플레이어가 아닌 MadMapper로 변경, 찾는 윈도우를 MadMapper로, 메세지박스는 삭제하고 1초마다 확인하게 바꾸기
             // 팟플레이어 찾기
             hWnd = FindWindow("PotPlayer", null);
@@ -135,6 +193,44 @@ namespace EntranceSensorForm
             }
             thread = new Thread(new ThreadStart(VideoThread));
             thread.Start();
+            */
+        }
+
+        void OscSendThread()
+        {
+            while(!exitFlag)
+            {
+                try
+                {
+
+                }
+                catch(Exception e)
+                {
+                    Log(e.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 랜덤재생 (비디오 여러개)
+        /// </summary>
+        void PlayRandom()
+        {
+            if(isSensorActive && stopwatch.IsRunning)
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// 하나만 재생 (하나의 비디오만 재생)
+        /// </summary>
+        void PlayOnce()
+        {
+            if(isSensorActive && stopwatch.IsRunning)
+            {
+
+            }
         }
 
         /// <summary>
@@ -201,7 +297,8 @@ namespace EntranceSensorForm
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             exitFlag = true;
-            thread.Join();
+            if(thread != null)
+                thread.Join();
         }
     }
 }
